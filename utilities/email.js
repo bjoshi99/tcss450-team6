@@ -6,6 +6,8 @@ let sendEmail = (sender, receiver, subject, message) => {
     //make sure you add the password to the environmental variables
     //similar to the DATABASE_URL and PHISH_DOT_NET_KEY (later section of the lab)
 
+    try{
+
     const EMAIL = process.env.EMAIL_USERNAME;
     const PASSWORD = process.env.EMAIL_PASSWORD;
 
@@ -33,7 +35,10 @@ let sendEmail = (sender, receiver, subject, message) => {
           console.log('Email sent: ' + info.response);
         }
     });
-    
+  }
+  catch(e){
+    console.log("Error: ", e);
+  }
     // line 81 register.js
 }
 
