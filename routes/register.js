@@ -118,7 +118,28 @@ router.post('/', (request, response) => {
 })
 
 router.get('/verify/:uniqueString', (request, response) => {
-    response.status(200).send(request.params.uniqueString)
+    let uniqueString = request.params.uniqueString
+    let theQuery = "SELECT * FROM Verification WHERE UniqueString=$1"
+    let values = [uniqueString]
+    pool.query(theQuery, values)
+        .then(result => {
+            // response.status(201).send({
+            //     success: true,
+            //     email: result.rows[0].email
+            // })
+            let updateQuery = "UPDATE Members SET Verification=$1 WHERE Email=$2"
+            let values = [1, result.rows[0].email]
+            pool.query(updateQuery, values)
+                .then(result => {
+                    response.status(201).send("Email successfully verified.")
+                })
+                .catch((error) => {
+                    console.log(error)
+                })
+        })
+        .catch((error) => {
+            console.log(error)
+        })
 })
 
 router.get('/hash_demo', (request, response) => {
