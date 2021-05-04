@@ -78,7 +78,19 @@ router.post('/', (request, response) => {
                     success: true,
                     email: result.rows[0].email
                 })
-                sendEmail(process.env.EMAIL_USERNAME, email, "Welcome to our App!", "Please verify your Email account.")
+                const hash = generateHash(email)
+                const link = "http://" + request.get('host') + "/auth/verify/" + hash
+                let verifyQuery = "INSERT INTO VERIFICATION(UniqueString, Email) VALUES ($1, $2)"
+                let verifyValues = [hash, email]
+                pool.query(verifyQuery, verifyValues)
+                    .then(result => {
+                        const message = "Please verify your email account. <a href="
+                        + link + ">Click here to verify</a>"
+                        sendEmail(process.env.EMAIL_USERNAME, email, "Welcome to our App!", message)
+                    })
+                    .catch((error) => {
+                        console.error("Verify query error", error)
+                    })
             })
             .catch((error) => {
                 //log the error
@@ -103,6 +115,10 @@ router.post('/', (request, response) => {
             message: "Missing required information"
         })
     }
+})
+
+router.get('/verify/:uniqueString', (request, response) => {
+    response.status(200).send(request.params.uniqueString)
 })
 
 router.get('/hash_demo', (request, response) => {
