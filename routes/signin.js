@@ -71,13 +71,21 @@ router.get('/', (request, response, next) => {
         })
     }
 }, (request, response) => {
-    const theQuery = "SELECT Password, Salt, MemberId FROM Members WHERE Email=$1"
+    const theQuery = "SELECT Password, Salt, MemberId, Verification FROM Members WHERE Email=$1"
     const values = [request.auth.email]
     pool.query(theQuery, values)
         .then(result => { 
             if (result.rowCount == 0) {
                 response.status(404).send({
                     message: 'User not found' 
+                })
+                return
+            }
+
+            let verification = result.rows[0].verification
+            if(verification == 0){
+                response.status(404).send({
+                    message: 'Please verify your email before signing in.' 
                 })
                 return
             }
