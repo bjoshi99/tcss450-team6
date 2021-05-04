@@ -23,7 +23,7 @@ let sendEmail = (sender, receiver, subject, message) => {
             from: sender,
             to: receiver,
             subject: subject,
-            text: message
+            html: message
         };
 
         transporter.sendMail(mailOptions, function (error, info) {
