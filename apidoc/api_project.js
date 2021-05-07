@@ -3,7 +3,7 @@ define({
   "version": "0.1.0",
   "description": "The TCSS 450 Lab Web Service API Documentation",
   "title": "Lab API Doc",
-  "url": "https://ralabado-tcss450-labs.herokuapp.com/",
+  "url": "https://tcss450-team6.herokuapp.com/",
   "order": [
     "Hello",
     "Params",
@@ -17,7 +17,7 @@ define({
   "apidoc": "0.3.0",
   "generator": {
     "name": "apidoc",
-    "time": "2021-04-27T02:45:00.337Z",
+    "time": "2021-05-07T02:22:44.864Z",
     "url": "https://apidocjs.com",
     "version": "0.27.1"
   }

@@ -81,6 +81,15 @@
             "description": "<p>&quot;User not found&quot;</p>"
           }
         ],
+        "404: Email Not Verfied": [
+          {
+            "group": "404: Email Not Verfied",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;Please verify your email before signing in.&quot;</p>"
+          }
+        ],
         "400: Invalid Credentials": [
           {
             "group": "400: Invalid Credentials",
