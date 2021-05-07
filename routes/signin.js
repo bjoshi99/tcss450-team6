@@ -42,6 +42,8 @@ const config = {
  * 
  * @apiError (404: User Not Found) {String} message "User not found"
  * 
+ * @apiError (404: Email Not Verfied) {String} message "Please verify your email before signing in."
+ * 
  * @apiError (400: Invalid Credentials) {String} message "Credentials did not match"
  * 
  */ 
