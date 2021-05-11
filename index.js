@@ -44,6 +44,7 @@ app.use('/demosql', require('./routes/demosql.js'))
 
 app.use('/phish', middleware.checkToken, require('./routes/phish.js'))
 
+app.use('/verify', require('./routes/reverify.js'))
 
 app.get("/", (request, response) => {
 

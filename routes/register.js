@@ -4,6 +4,8 @@ const express = require('express')
 //Access the connection to Heroku Database
 const pool = require('../utilities').pool
 
+var path = require('path');
+
 const validation = require('../utilities').validation
 let isStringProvided = validation.isStringProvided
 
@@ -79,7 +81,7 @@ router.post('/', (request, response) => {
                     email: result.rows[0].email
                 })
                 const hash = generateHash(email)
-                const link = "http://" + request.get('host') + "/auth/verify/" + hash
+                const link = "https://" + request.get('host') + "/auth/verify/" + hash
                 let verifyQuery = "INSERT INTO VERIFICATION(UniqueString, Email) VALUES ($1, $2)"
                 let verifyValues = [hash, email]
                 pool.query(verifyQuery, verifyValues)
@@ -127,11 +129,13 @@ router.get('/verify/:uniqueString', (request, response) => {
             //     success: true,
             //     email: result.rows[0].email
             // })
+            // console.log("Email from register: " + result.rows[0] )
             let updateQuery = "UPDATE Members SET Verification=$1 WHERE Email=$2"
             let values = [1, result.rows[0].email]
             pool.query(updateQuery, values)
                 .then(result => {
-                    response.status(201).send("Email successfully verified.")
+                    // response.status(201).send("Email successfully verified.")
+                    response.status(201).sendFile('emailverify.html', {root: path.join(__dirname, '../utilities')})
                 })
                 .catch((error) => {
                     console.log(error)
