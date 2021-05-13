@@ -84,14 +84,6 @@ router.get('/', (request, response, next) => {
                 return
             }
 
-            let verification = result.rows[0].verification
-            if(verification == 0){
-                response.status(404).send({
-                    message: 'Please verify your email before signing in.' 
-                })
-                return
-            }
-
             //Retrieve the salt used to create the salted-hash provided from the DB
             let salt = result.rows[0].salt
             
@@ -114,6 +106,16 @@ router.get('/', (request, response, next) => {
                         expiresIn: '60 days' // expires in 14 days
                     }
                 )
+
+                //if matched then check for email verification
+                let verification = result.rows[0].verification
+                if(verification == 0){
+                    response.status(404).send({
+                        message: 'Please verify your email before signing in.' 
+                    })
+                    return
+                }
+
                 //package and send the results
                 response.json({
                     success: true,
