@@ -46,6 +46,8 @@ app.use('/phish', middleware.checkToken, require('./routes/phish.js'))
 
 app.use('/verify', require('./routes/reverify.js'))
 
+app.use('/reset/password', require('./routes/resetPassword.js'))
+
 app.get("/", (request, response) => {
 
     //this is a Web page so set the content-type to HTML

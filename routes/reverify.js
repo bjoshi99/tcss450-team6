@@ -36,7 +36,7 @@ router.post("/", (request, response) => {
                     const hash = result.rows[0].uniquestring;
                     const email = result.rows[0].email;
                     // console.log("uniqueString " + hash)
-                    const link = "http://" + request.get('host') + "/auth/verify/" + hash
+                    const link = "https://" + request.get('host') + "/auth/verify/" + hash
                     const message = "Please verify your email account. <a href="
                         + link + ">Click here to verify</a>"
                 
