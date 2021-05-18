@@ -48,6 +48,12 @@ app.use('/verify', require('./routes/reverify.js'))
 
 app.use('/reset/password', require('./routes/resetPassword.js'))
 
+app.use('/messages', middleware.checkToken, require('./routes/messages.js'))
+
+app.use('/chats', middleware.checkToken, require('./routes/chats.js'))
+
+app.use('/auth', middleware.checkToken, require('./routes/pushyregister.js'))
+
 app.get("/", (request, response) => {
 
     //this is a Web page so set the content-type to HTML
