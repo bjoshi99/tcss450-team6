@@ -16,7 +16,7 @@ const generateSalt = require('../utilities').generateSalt
 const sendEmail = require('../utilities').sendEmail
 
 /**
- * @api {post} /resend Request to send email varification for password verification
+ * @api {get} /resend Request to send email varification for password verification
  * @apiName PostResend
  * @apiGroup Resend
  * 
@@ -24,7 +24,7 @@ const sendEmail = require('../utilities').sendEmail
  *
  * @apiSuccess {String} message Verification email resent successfully.
  */
-router.post("/", (request, response, next) => {
+router.get("/", (request, response, next) => {
     // const hash = generateHash(email)
     // console.log("email " + request.body.email)
     if (isStringProvided(request.body.email)) {
@@ -131,7 +131,126 @@ router.post("/", (request, response, next) => {
 
 
 /**
- * @api {put} /auth put Request to register a user
+ * @api {post} /restet/password Request to update the user password
+ * @apiName PostResetPassword
+ * @apiGroup ResetPassword
+ * 
+ * @apiParam {String} Old password of the user
+ * @apiParam {String} New password of the user
+ * @apiParam {String} email a users email *unique
+ * 
+ * @apiParamExample {json} Request-Body-Example:
+ *  {
+ *      "password":"test12345",
+ *      "oldPassword":"123",
+ *      "email":"team6@fake.email"
+ *  }
+ * 
+ * @apiSuccess {boolean} success true when the name is found and password matches
+ * @apiSuccess {String} message "Authentication successful!""
+ * @apiSuccess {String} token JSON Web Token
+ * 
+ * @apiSuccess (Success 201) {boolean} success true when the password is updated
+ * 
+ * @apiError (400: Missing Authorization Header) {String} message "Missing Authorization Header"
+ * 
+ * @apiError (400: Malformed Authorization Header) {String} message "Malformed Authorization Header"
+ * 
+ * @apiError (404: User Not Found) {String} message "User not found"
+ *  
+ * @apiError (400: Invalid Credentials) {String} message "Credentials did not match"
+ * 
+ */ 
+router.post('/', (request, response, next) => {
+
+    const email = request.body.email
+    const password = request.body.password
+    const old = request.body.oldPassword
+
+    if(isStringProvided(email)
+         && isStringProvided(password) 
+         && isStringProvided(old)){
+
+            next()
+    }
+    else {
+        response.status(400).send({
+            message: "Missing required information"
+        })
+    }
+}, (request, response, next) =>{
+
+    const theQuery = "SELECT Password, Salt FROM Members WHERE Email=$1"
+    const values = [request.body.email]
+    pool.query(theQuery, values)
+        .then(result => { 
+            if (result.rowCount == 0) {
+                response.status(404).send({
+                    message: 'User not found' 
+                })
+                return
+            }
+
+            //Retrieve the salt used to create the salted-hash provided from the DB
+            let salt = result.rows[0].salt
+            
+            //Retrieve the salted-hash password provided from the DB
+            let storedSaltedHash = result.rows[0].password 
+
+            //Generate a hash based on the stored salt and the provided password
+            let providedSaltedHash = generateHash(request.body.oldPassword, salt)
+
+            //Did our salted hash match their salted hash?
+            if (storedSaltedHash === providedSaltedHash ) {
+                //credentials match. get a new JWT
+                next()
+            } else {
+                //credentials dod not match
+                response.status(400).send({
+                    message: 'Credentials did not match' 
+                })
+            }
+        })
+        .catch((err) => {
+            //log the error
+            console.log(err.stack)
+            response.status(400).send({
+                message: err.detail
+            })
+        })
+
+}, (request, response) => {
+
+    let updateQuery = "UPDATE Members SET Password=$1, Salt=$2 WHERE Email=$3";
+    let salt = generateSalt(32)
+    let salted_hash = generateHash(request.body.password, salt)
+    let values = [salted_hash, salt, request.body.email]
+
+    pool.query(updateQuery, values)
+            .then(result => {
+
+                console.log("Result of final query: /post "+result)
+                //We successfully updates the user!
+                response.status(201).send({
+                    success: true,
+                    email: request.body.email,
+                    message:"Passowrd updated successfully."
+                })
+            
+            })
+            .catch((error) => {
+                //log the error
+                    console.log(error)
+                    response.status(400).send({
+                        message: "other error, see detail",
+                        detail: error.detail
+                    })
+                
+            })
+})
+
+/**
+ * @api {put} /reset/password put Request to register a user
  * @apiName PutAuth
  * @apiGroup Auth
  * 
@@ -195,7 +314,7 @@ router.post("/", (request, response, next) => {
     }
  }, (request, response, next) =>{
 
-    //this might be needed to avoid unauthorized access to update user password
+    //this is needed to avoid unauthorized access to update user password
 
     const theQuery = "SELECT uniquestring FROM ResetPassword WHERE Email=$1"
     const values = [request.body.email]
@@ -237,7 +356,7 @@ router.post("/", (request, response, next) => {
         pool.query(theQuery, values)
             .then(result => {
 
-                console.log("Result of final query: "+result)
+                console.log("Result of final query: /put "+result)
                 //We successfully updates the user!
                 response.status(201).send({
                     success: true,
