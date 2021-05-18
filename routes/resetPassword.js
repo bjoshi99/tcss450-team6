@@ -27,7 +27,7 @@ const sendEmail = require('../utilities').sendEmail
 router.get("/", (request, response, next) => {
     // const hash = generateHash(email)
     // console.log("email " + request.body.email)
-    if (isStringProvided(request.body.email)) {
+    if (isStringProvided(request.query.email)) {
         // console.log("Email is okay : " + request.body.email)
         next()
     } else {
@@ -38,7 +38,7 @@ router.get("/", (request, response, next) => {
     }    
 }, (request, response, next) => {
     const theQuery = "SELECT Verification FROM Members WHERE Email=$1"
-    const values = [request.body.email]
+    const values = [request.query.email]
     pool.query(theQuery, values)
         .then(result => { 
             if (result.rowCount == 0) {
@@ -61,14 +61,14 @@ router.get("/", (request, response, next) => {
         //if there is already request with code then update it
 
         let theQuery = "SELECT uniquestring FROM ResetPassword WHERE Email=$1"
-        let values = [request.body.email]
+        let values = [request.query.email]
 
         pool.query(theQuery, values)
         .then(result => {
 
             if(result.rowCount == 0){
 
-                var email = request.body.email;
+                var email = request.query.email;
                 var code = makeid(8);
                 let theQuery = "INSERT INTO ResetPassword(uniquestring, email, verified) VALUES ($1, $2,$3)"
                 let values = [code, email, 0]
@@ -97,7 +97,7 @@ router.get("/", (request, response, next) => {
             }
             else{
 
-                var email = request.body.email;
+                var email = request.query.email;
                 var code = makeid(8);
 
                 let query = "UPDATE ResetPassword SET uniquestring = $1 WHERE Email=$2"
