@@ -54,6 +54,8 @@ app.use('/chats', middleware.checkToken, require('./routes/chats.js'))
 
 app.use('/auth', middleware.checkToken, require('./routes/pushyregister.js'))
 
+app.use('/contacts', middleware.checkToken, require('./routes/contacts.js'))
+
 app.get("/", (request, response) => {
 
     //this is a Web page so set the content-type to HTML

@@ -52,6 +52,7 @@ FROM Members
 WHERE Members.Email='test1@test.com'
     OR Members.Email='test2@test.com'
     OR Members.Email='test3@test.com'
+    OR members.Email='bjoshi99@uw.edu'
 RETURNING *;
 
 --Add Multiple messages to create a conversation
