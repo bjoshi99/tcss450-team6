@@ -1,15 +1,10 @@
 {
-    "name": "TCSS 450 Lab Web Service",
+    "name": "TCSS 450 Team 6 Web Service",
     "version": "0.1.0",
-    "description": "The TCSS 450 Lab Web Service API Documentation",
-    "title": "Lab API Doc",
+    "description": "The TCSS 450 Team 6 Web Service API Documentation",
+    "title": "API Doc",
     "url" : "https://tcss450-team6.herokuapp.com/",
     "order": [
-      "Hello",
-      "Params",
-      "Wait",
-      "DemoSql",
-      "Auth",
-      "Phish"
+      "Auth"
     ]
   }

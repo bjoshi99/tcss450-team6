@@ -13,9 +13,9 @@ let isStringProvided = validation.isStringProvided
 const sendEmail = require('../utilities').sendEmail
 
 /**
- * @api {post} /resend Request to re-send email varification
- * @apiName PostResend
- * @apiGroup Resend
+ * @api {post} /verify Request to re-send email varification
+ * @apiName PostResendEmail
+ * @apiGroup ResendEmail
  * 
  * @apiParam {String} email user's email
  *
@@ -57,30 +57,6 @@ router.post("/", (request, response) => {
     
 })
 
-// /**
-//  * @api {post} /params Request an message echo with a parameter 
-//  * @apiName PostResend
-//  * @apiGroup Resend
-//  * 
-//  * @apiParam {String} email user's valid email
-//  * 
-//  * @apiSuccess {String} message Hello World message with echo of name
-//  * 
-//  * @apiError (400: Missing Parameters) {String} message "Missing required information"
-//  */ 
-//  router.post("/", (request, response) => {
-//     if (isStringProvided(request.body.name)) {
-//         response.send({
-//             //req.body is a reference to arguments in the POST body
-//             message: "Hello, " + request.body.name + "! You sent a POST Request"
-//         })
-//     } else {
-//         response.status(400).send({
-//             message: "Missing required information"
-//         })
-//     }
-// })
-
 router.get('/verify/:uniqueString', (request, response) => {
     let uniqueString = request.params.uniqueString
     let theQuery = "SELECT * FROM Verification WHERE UniqueString=$1"
@@ -107,17 +83,4 @@ router.get('/verify/:uniqueString', (request, response) => {
         })
 })
 
-// /**
-//  * @api {post} /hello Request a Hello World message
-//  * @apiName PostHello
-//  * @apiGroup Hello
-//  * 
-//  * @apiSuccess {String} message Hello World message
-//  */ 
-// router.post("/", (request, response) => {
-//     response.send({
-//         message: "Hello, you sent a POST request"
-//     })
-// })
-// "return" the router
 module.exports = router

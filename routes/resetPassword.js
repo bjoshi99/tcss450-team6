@@ -16,9 +16,9 @@ const generateSalt = require('../utilities').generateSalt
 const sendEmail = require('../utilities').sendEmail
 
 /**
- * @api {get} /resend Request to send email varification for password verification
- * @apiName PostResend
- * @apiGroup Resend
+ * @api {get} /reset/password Request to send email varification for password verification
+ * @apiName GetResetPassword
+ * @apiGroup ResetPassword
  * 
  * @apiParam {String} email user's email
  *
@@ -251,8 +251,8 @@ router.post('/', (request, response, next) => {
 
 /**
  * @api {put} /reset/password put Request to register a user
- * @apiName PutAuth
- * @apiGroup Auth
+ * @apiName PutResetPassword
+ * @apiGroup ResetPassword
  * 
  * @apiParam {String} email a users email *unique
  * @apiParam {String} password a users password
