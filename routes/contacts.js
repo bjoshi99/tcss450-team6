@@ -76,6 +76,171 @@ router.use(require("body-parser").json())
         })
 });
 
+/**
+ * @api {delete} /contacts/contact/:memberId? Request to delete contact 
+ * @apiName DeleteContact
+ * @apiGroup Contacts
+ * 
+ * @apiDescription Request to delete contact 
+ * 
+ * @apiParam {Number} memberId deleting 
+ * 
+ * @apiSuccess {boolean} success true when the name is deleted
+ * @apiSuccess {String} success messsage when the name is deleted
+ * 
+ * @apiError (404: memberId Not Found) {String} message "Contact not found"
+ * @apiError (400: Invalid Parameter) {String} message "Malformed parameter" 
+ * @apiError (400: Missing Parameters) {String} message "Missing required information"
+ * 
+ * @apiError (400: SQL Error) {String} message the reported SQL error details
+ * 
+ * @apiUse JSONError
+ */
+ router.delete("/contact/:memberId?", (request, response, next) => {
+    if (!request.params.memberId) {
+        response.status(400).send({
+            message: "Missing required information"
+        })
+    } else if (isNaN(request.params.memberId)) {
+        response.status(400).send({
+            message: "Malformed parameter."
+        })
+    } else {
+        next()
+    }
+}, (request, response) => {
+    // Delete contact
+    let query = 'DELETE FROM Contacts WHERE MemberID_A=$1 and MemberID_B=$2'
+    let values = [request.decoded.memberid, request.params.memberId]
+
+    pool.query(query, values)
+        .then(result => {
+            response.send({
+                success: true,
+                "message":"contacts deleted successfully"
+            })
+        }).catch(error => {
+            response.status(400).send({
+                message: "SQL Error",
+                error: error
+            })
+        })
+});
+
+/**
+ * @api {post} /contacts Request to add a contact to current user.
+ * @apiName PostContacts
+ * @apiGroup Contacts
+ * 
+ * @apiDescription Adds contact to user contacts
+ * 
+ * @apiHeader {String} authorization Valid JSON Web Token JWT
+ * 
+ * @apiParam {Number} memberId of the contact being added
+ * 
+ * @apiSuccess (Success 201) {boolean} success true when contact is added
+ * @apiSuccess (Success 201) {String} success Message when contact is added
+ * 
+ * @apiError (400: Unknown user) {String} message "unknown contact"
+ * 
+ * @apiError (400: Missing Parameters) {String} message "Missing required information"
+ * 
+ * @apiError (400: SQL Error) {String} message the reported SQL error details
+ * 
+ * @apiError (400: Unknow Member ID) {String} message "invalid member id"
+ * 
+ * @apiUse JSONError
+ */
+ router.post("/", (request, response, next) => {
+
+    //validate on empty parameters
+    if (!request.body.memberId && !request.body.verified) {
+        response.status(400).send({
+            message: "Missing required information"
+        })
+    } else if (isNaN(request.body.memberId) || isNaN(request.body.verified)) {
+        response.status(400).send({
+            message: "Malformed parameter. Required body contents should be integer."
+        })
+    } else {
+        next()
+    }
+}, (request, response, next) => {
+    let query = 'SELECT * FROM Members WHERE MemberID=$1'
+    let values = [request.body.memberId]
+
+    pool.query(query, values)
+        .then(result => {
+            if (result.rowCount == 0) {
+                response.status(404).send({
+                    message: "Requested User not found."
+                })
+            } else {
+                next()
+            }
+        }).catch(error => {
+            response.status(400).send({
+                message: "SQL Error (memberId check)",
+                error: error
+            })
+        })
+}, (request, response) => {
+    if (request.body.verified == 1) {
+        let insert = `UPDATE Contacts SET verified=1 where MemberID_A=$1 AND MemberID_B=$2`
+        let values = [request.decoded.memberid, request.body.memberId]
+        pool.query(insert, values)
+            .then(result => {
+                response.send({
+                    success: true
+                })
+            }).catch(err => {
+                console.log(err);
+                response.status(400).send({
+                    message: "SQL Error on insert",
+                    error: err
+                })
+            })
+    } else {
+        let insert = `INSERT INTO Contacts(MemberID_B, MemberID_A, verified) VALUES($1, $2, $3)`
+        let values = [request.decoded.memberid, request.body.memberId, request.body.verified]
+        pool.query(insert, values)
+            .then(result => {
+                if (result.rowCount == 1) {
+                    let insert = `INSERT INTO Contacts(MemberID_A, MemberID_B, verified) VALUES($1, $2, $3)`
+                    let values = [request.decoded.memberid, request.body.memberId, 1]
+                    pool.query(insert, values)
+                        .then(result => {
+                            if (result.rowCount == 1) {
+                                response.send({
+                                    success: true,
+                                    "message":"contacts added successfully"
+                                })
+                            } else {
+                                response.status(400).send({
+                                    "message": "unknown error"
+                                })
+                            }
+
+                        }).catch(err => {
+                            response.status(400).send({
+                                message: "SQL Error on insert",
+                                error: err
+                            })
+                        })
+                } else {
+                    response.status(400).send({
+                        "message": "unknown error"
+                    })
+                }
+
+            }).catch(err => {
+                response.status(400).send({
+                    message: "SQL Error on insert",
+                    error: err
+                })
+            })
+    }
+})
 
 
 /**

@@ -841,6 +841,92 @@ define({ "api": [
     "groupTitle": "Chats"
   },
   {
+    "type": "delete",
+    "url": "/contacts/contact/:memberId?",
+    "title": "Request to delete contact",
+    "name": "DeleteContact",
+    "group": "Contacts",
+    "description": "<p>Request to delete contact</p>",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "memberId",
+            "description": "<p>deleting</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "boolean",
+            "optional": false,
+            "field": "success",
+            "description": "<p>true when the name is deleted</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "404: memberId Not Found": [
+          {
+            "group": "404: memberId Not Found",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;Contact not found&quot;</p>"
+          }
+        ],
+        "400: Invalid Parameter": [
+          {
+            "group": "400: Invalid Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;Malformed parameter&quot;</p>"
+          }
+        ],
+        "400: Missing Parameters": [
+          {
+            "group": "400: Missing Parameters",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;Missing required information&quot;</p>"
+          }
+        ],
+        "400: SQL Error": [
+          {
+            "group": "400: SQL Error",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>the reported SQL error details</p>"
+          }
+        ],
+        "400: JSON Error": [
+          {
+            "group": "400: JSON Error",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;malformed JSON in parameters&quot;</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/contacts.js",
+    "groupTitle": "Contacts"
+  },
+  {
     "type": "get",
     "url": "/contacts/listofchat",
     "title": "Request to get list of recent chats from contacts",
@@ -933,6 +1019,105 @@ define({ "api": [
             "optional": false,
             "field": "message",
             "description": "<p>the reported SQL error details</p>"
+          }
+        ],
+        "400: JSON Error": [
+          {
+            "group": "400: JSON Error",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;malformed JSON in parameters&quot;</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/contacts.js",
+    "groupTitle": "Contacts"
+  },
+  {
+    "type": "post",
+    "url": "/contacts",
+    "title": "Request to add a contact to current user.",
+    "name": "PostContacts",
+    "group": "Contacts",
+    "description": "<p>Adds contact to user contacts</p>",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Valid JSON Web Token JWT</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "memberId",
+            "description": "<p>of the contact being added</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 201": [
+          {
+            "group": "Success 201",
+            "type": "boolean",
+            "optional": false,
+            "field": "success",
+            "description": "<p>true when contact is added</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "400: Unknown user": [
+          {
+            "group": "400: Unknown user",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;unknown contact&quot;</p>"
+          }
+        ],
+        "400: Missing Parameters": [
+          {
+            "group": "400: Missing Parameters",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;Missing required information&quot;</p>"
+          }
+        ],
+        "400: SQL Error": [
+          {
+            "group": "400: SQL Error",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>the reported SQL error details</p>"
+          }
+        ],
+        "400: Unknow Member ID": [
+          {
+            "group": "400: Unknow Member ID",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;invalid member id&quot;</p>"
           }
         ],
         "400: JSON Error": [
