@@ -16,19 +16,19 @@ const generateSalt = require('../utilities').generateSalt
 const sendEmail = require('../utilities').sendEmail
 
 /**
- * @api {get} /reset/password Request to send email varification for password verification
+ * @api {post} /reset/password/email Request to send email varification for password verification
  * @apiName GetResetPassword
  * @apiGroup ResetPassword
  * 
- * @apiParam {String} email user's email
+ * @apiBody {String} email user's email
  *
  * @apiSuccess {String} message Verification email resent successfully.
  */
-router.get("/", (request, response, next) => {
+router.post("/email", (request, response, next) => {
     // const hash = generateHash(email)
     // console.log("email " + request.body.email)
-    if (isStringProvided(request.query.email)) {
-        // console.log("Email is okay : " + request.body.email)
+    if (isStringProvided(request.body.email)) {
+        console.log("Email is okay : " + request.body.email)
         next()
     } else {
         response.status(400).send({
@@ -38,7 +38,7 @@ router.get("/", (request, response, next) => {
     }    
 }, (request, response, next) => {
     const theQuery = "SELECT Verification FROM Members WHERE Email=$1"
-    const values = [request.query.email]
+    const values = [request.body.email]
     pool.query(theQuery, values)
         .then(result => { 
             if (result.rowCount == 0) {
@@ -61,14 +61,14 @@ router.get("/", (request, response, next) => {
         //if there is already request with code then update it
 
         let theQuery = "SELECT uniquestring FROM ResetPassword WHERE Email=$1"
-        let values = [request.query.email]
+        let values = [request.body.email]
 
         pool.query(theQuery, values)
         .then(result => {
 
             if(result.rowCount == 0){
 
-                var email = request.query.email;
+                var email = request.body.email;
                 var code = makeid(8);
                 let theQuery = "INSERT INTO ResetPassword(uniquestring, email, verified) VALUES ($1, $2,$3)"
                 let values = [code, email, 0]
@@ -97,7 +97,7 @@ router.get("/", (request, response, next) => {
             }
             else{
 
-                var email = request.query.email;
+                var email = request.body.email;
                 var code = makeid(8);
 
                 let query = "UPDATE ResetPassword SET uniquestring = $1 WHERE Email=$2"
