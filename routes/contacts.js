@@ -6,6 +6,8 @@ let pool = require('../utilities').pool
 
 var router = express.Router()
 
+const contact_functions = require('../utilities/exports').messaging
+
 //This allows parsing of the body of POST requests, that are encoded in JSON
 router.use(require("body-parser").json())
 
@@ -153,6 +155,8 @@ router.use(require("body-parser").json())
  */
  router.post("/", (request, response, next) => {
 
+    console.log("Iside the right end point")
+
     //validate on empty parameters
     if (!request.body.memberId && !request.body.verified) {
         response.status(400).send({
@@ -203,18 +207,59 @@ router.use(require("body-parser").json())
     } else {
         let insert = `INSERT INTO Contacts(MemberID_B, MemberID_A, verified) VALUES($1, $2, $3)`
         let values = [request.decoded.memberid, request.body.memberId, request.body.verified]
+        
         pool.query(insert, values)
             .then(result => {
                 if (result.rowCount == 1) {
                     let insert = `INSERT INTO Contacts(MemberID_A, MemberID_B, verified) VALUES($1, $2, $3)`
                     let values = [request.decoded.memberid, request.body.memberId, 1]
+
+                    console.log("here 2nd : "+request.decoded.toString('utf8'))
+
                     pool.query(insert, values)
                         .then(result => {
                             if (result.rowCount == 1) {
-                                response.send({
-                                    success: true,
-                                    "message":"contacts added successfully"
-                                })
+
+                                let query = "SELECT token FROM Push_Token WHERE memberid = $1"
+                                let value = [request.body.memberId]
+
+                                pool.query(query, value)
+                                    .then(result => {
+
+                                        let query = "SELECT FirstName, LastName FROM Members WHERE memberID = $1"
+                                        let value = [request.decoded.memberid]
+                                        let tkn = result.rows[0].token
+                    
+                                        pool.query(query, value)
+                                            .then(result => {
+
+                                                let msg = "New contact request from " + result.rows[0].firstname + " " + result.rows[0].lastname
+                                                console.log(tkn + " and new mssg to send " + msg)
+                                                 
+                                                //send notification to pushy
+                                                contact_functions.sendContactRequestToIndividual(
+                                                    tkn, 
+                                                    msg,
+                                                    request.body.memberId)
+
+                                                response.send({
+                                                    success: true,
+                                                    "message":"contacts added successfully"
+                                                })
+                                            })
+                                            .catch(error => {
+
+                                            })
+                                      
+                                    })
+                                    .catch(error => {
+                                        console.log("Erro while selecting from push token: " + error)
+                                        response.status(400).send({
+                                            message: "SQL Error on select token",
+                                            error: err
+                                        })
+                                    })
+
                             } else {
                                 response.status(400).send({
                                     "message": "unknown error"
@@ -222,6 +267,7 @@ router.use(require("body-parser").json())
                             }
 
                         }).catch(err => {
+                            console.log("Error inside the else ")
                             response.status(400).send({
                                 message: "SQL Error on insert",
                                 error: err
@@ -234,6 +280,7 @@ router.use(require("body-parser").json())
                 }
 
             }).catch(err => {
+                console.log("This is the only posisble else block")
                 response.status(400).send({
                     message: "SQL Error on insert",
                     error: err
