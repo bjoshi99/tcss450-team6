@@ -395,7 +395,7 @@ router.get("/search/:member", (request, response, next) => {
                 searchResults.push(
                     {
                         "firstname": entry.firstname,
-                        "lastname": entry.lastName,
+                        "lastname": entry.lastname,
                         "username": entry.username,
                         "email": entry.email
                     }
