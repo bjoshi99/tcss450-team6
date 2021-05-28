@@ -841,6 +841,132 @@
     "groupTitle": "Chats"
   },
   {
+    "type": "put",
+    "url": "/chats/user/:chatId?",
+    "title": "Request add a user to a chat",
+    "name": "PutChats",
+    "group": "Chats",
+    "description": "<p>Adds the user associated with the required JWT.</p>",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Valid JSON Web Token JWT</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "chatId",
+            "description": "<p>the chat to add the user to</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "boolean",
+            "optional": false,
+            "field": "success",
+            "description": "<p>true when the name is inserted</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "404: Chat Not Found": [
+          {
+            "group": "404: Chat Not Found",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;chatID not found&quot;</p>"
+          }
+        ],
+        "404: Member Not Found": [
+          {
+            "group": "404: Member Not Found",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;MemberID not found&quot;</p>"
+          }
+        ],
+        "404: Email Not Found": [
+          {
+            "group": "404: Email Not Found",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;email not found&quot;</p>"
+          }
+        ],
+        "400: Invalid Parameter": [
+          {
+            "group": "400: Invalid Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;Malformed parameter. chatId and memberId must be numbers&quot;</p>"
+          }
+        ],
+        "400: Duplicate Email": [
+          {
+            "group": "400: Duplicate Email",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;user already joined&quot;</p>"
+          }
+        ],
+        "400: Missing Parameters": [
+          {
+            "group": "400: Missing Parameters",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;Missing required information&quot;</p>"
+          }
+        ],
+        "400: SQL Error": [
+          {
+            "group": "400: SQL Error",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>the reported SQL error details</p>"
+          }
+        ],
+        "400: JSON Error": [
+          {
+            "group": "400: JSON Error",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;malformed JSON in parameters&quot;</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/chats.js",
+    "groupTitle": "Chats"
+  },
+  {
     "type": "delete",
     "url": "/contacts/contact/:memberId?",
     "title": "Request to delete contact",
@@ -1010,6 +1136,87 @@
             "optional": false,
             "field": "message",
             "description": "<p>&quot;member ID Not Found&quot;</p>"
+          }
+        ],
+        "400: SQL Error": [
+          {
+            "group": "400: SQL Error",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>the reported SQL error details</p>"
+          }
+        ],
+        "400: JSON Error": [
+          {
+            "group": "400: JSON Error",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;malformed JSON in parameters&quot;</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/contacts.js",
+    "groupTitle": "Contacts"
+  },
+  {
+    "type": "get",
+    "url": "/contacts/search/:member",
+    "title": "Search for a member",
+    "name": "GetSearchResults",
+    "group": "Contacts",
+    "description": "<p>Get all results matching the search entry. Can search for first name, last name, username, email. Case insensitive.</p>",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Valid JSON Web Token JWT</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "Member",
+            "description": "<p>to search for</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "boolean",
+            "optional": false,
+            "field": "success",
+            "description": "<p>true when the name is inserted</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "400: Missing Parameters": [
+          {
+            "group": "400: Missing Parameters",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;Missing required information&quot;</p>"
           }
         ],
         "400: SQL Error": [
@@ -1406,24 +1613,20 @@
     "groupTitle": "ResendEmail"
   },
   {
-    "type": "get",
-    "url": "/reset/password",
+    "type": "post",
+    "url": "/reset/password/email",
     "title": "Request to send email varification for password verification",
     "name": "GetResetPassword",
     "group": "ResetPassword",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "email",
-            "description": "<p>user's email</p>"
-          }
-        ]
+    "body": [
+      {
+        "group": "Body",
+        "type": "String",
+        "optional": false,
+        "field": "email",
+        "description": "<p>user's email</p>"
       }
-    },
+    ],
     "success": {
       "fields": {
         "Success 200": [
