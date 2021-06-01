@@ -42,7 +42,8 @@ router.use(require("body-parser").json())
     }
 }, (request, response) => {
     //Get contact info
-    let query = 'SELECT Verified, MemberID_B, Members.FirstName, Members.LastName, Members.email, Members.Username FROM Contacts INNER JOIN Members ON Contacts.MemberID_B = Members.MemberID where Contacts.MemberID_A = $1'
+    let query = 'SELECT Verified, MemberID_B, Members.FirstName, Members.LastName, Members.email, ' +
+        'Members.Username FROM Contacts INNER JOIN Members ON Contacts.MemberID_B = Members.MemberID where Contacts.MemberID_A = $1 AND Contacts.Verified = 1'
     let values = [request.decoded.memberid]
 
     pool.query(query, values)
@@ -382,5 +383,64 @@ router.get("/listofchat", (request, response, next) => {
         })
 });
 
+/**
+ * @api {get} /contacts/search/:member Search for a member
+ * @apiName GetSearchResults
+ * @apiGroup Contacts
+ * 
+ * @apiDescription Get all results matching the search entry. Can search for first name, last name,
+ *                  username, email. Case insensitive.
+ * 
+ * @apiHeader {String} authorization Valid JSON Web Token JWT
+ * 
+ * @apiParam {String} Member to search for
+ * 
+ * @apiSuccess {boolean} success true when the name is inserted
+ * 
+ * @apiError (400: Missing Parameters) {String} message "Missing required information"
+ * 
+ * @apiError (400: SQL Error) {String} message the reported SQL error details
+ * 
+ * @apiUse JSONError
+ */ 
+router.get("/search/:member", (request, response, next) => {
+    if (!request.params.member) {
+        response.status(400).send({
+            message: "Missing required information"
+        })
+    } else {
+        next()
+    }
+}, (request, response) => {
+    // Get all results matching request.params.member
+    let query = 'SELECT FirstName, LastName, Username, Email FROM Members WHERE LOWER(FirstName) LIKE LOWER($1) ' +
+        'OR LOWER(LastName) LIKE LOWER($1) OR LOWER(Username) LIKE LOWER($1) OR LOWER(Email) LIKE LOWER($1)'
+    let values = [request.params.member]
+
+    pool.query(query, values)
+        .then(result => {
+            let searchResults = []
+            result.rows.forEach(entry => {
+                searchResults.push(
+                    {
+                        "firstname": entry.firstname,
+                        "lastname": entry.lastname,
+                        "username": entry.username,
+                        "email": entry.email
+                    }
+                )
+            })
+            response.send({
+                success: true,
+                searchResults: searchResults
+            })
+        }).catch(error => {
+            console.log(error);
+            response.status(400).send({
+                message: "SQL Error",
+                error: error
+            })
+        })
+});
 
 module.exports = router
