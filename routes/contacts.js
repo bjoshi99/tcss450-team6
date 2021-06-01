@@ -138,7 +138,8 @@ router.use(require("body-parser").json())
  * 
  * @apiHeader {String} authorization Valid JSON Web Token JWT
  * 
- * @apiParam {Number} memberId of the contact being added
+ * @apiBody {String} email of the contact being added
+ * @apiBody {Number} verified 
  * 
  * @apiSuccess (Success 201) {boolean} success true when contact is added
  * @apiSuccess (Success 201) {String} success Message when contact is added
@@ -157,12 +158,12 @@ router.use(require("body-parser").json())
 
     console.log("Iside the right end point")
 
-    //validate on empty parameters
-    if (!request.body.memberId && !request.body.verified) {
+    //validate on empty body
+    if (!request.body.email && !request.body.verified) {
         response.status(400).send({
             message: "Missing required information"
         })
-    } else if (isNaN(request.body.memberId) || isNaN(request.body.verified)) {
+    } else if (isNaN(request.body.verified)) {
         response.status(400).send({
             message: "Malformed parameter. Required body contents should be integer."
         })
@@ -171,13 +172,13 @@ router.use(require("body-parser").json())
     }
 }, (request, response, next) => {
     let query = 'SELECT * FROM Members WHERE MemberID=$1'
-    let values = [request.body.memberId]
+    let values = [request.decoded.memberid]
 
     pool.query(query, values)
         .then(result => {
             if (result.rowCount == 0) {
                 response.status(404).send({
-                    message: "Requested User not found."
+                    message: "User not found."
                 })
             } else {
                 next()
@@ -188,10 +189,33 @@ router.use(require("body-parser").json())
                 error: error
             })
         })
+}, (request, response, next) => {
+    let query = 'SELECT MemberID FROM Members WHERE email=$1'
+    let values = [request.body.email]
+
+    pool.query(query, values)
+        .then(result => {
+            if (result.rowCount == 0) {
+                response.status(404).send({
+                    message: "Requested User not found."
+                })
+            } else {
+                console.log("Getting from database: " + result.rows[0].memberid)
+                var id = result.rows[0].memberid;
+                request.memID = id;
+                next()
+            }
+        }).catch(error => {
+            response.status(400).send({
+                message: "SQL Error (memberId check)",
+                error: error
+            })
+        })
 }, (request, response) => {
     if (request.body.verified == 1) {
+        // console.log("Inside the next: " + request.memID)
         let insert = `UPDATE Contacts SET verified=1 where MemberID_A=$1 AND MemberID_B=$2`
-        let values = [request.decoded.memberid, request.body.memberId]
+        let values = [request.decoded.memberid, request.memID]
         pool.query(insert, values)
             .then(result => {
                 response.send({
@@ -205,42 +229,47 @@ router.use(require("body-parser").json())
                 })
             })
     } else {
-        let insert = `INSERT INTO Contacts(MemberID_B, MemberID_A, verified) VALUES($1, $2, $3)`
-        let values = [request.decoded.memberid, request.body.memberId, request.body.verified]
+        let insert = `INSERT INTO Contacts(MemberID_A, MemberID_B, verified) VALUES($1, $2, $3)`
+        let values = [request.decoded.memberid, request.memID, request.body.verified]
         
         pool.query(insert, values)
             .then(result => {
-                if (result.rowCount == 1) {
-                    let insert = `INSERT INTO Contacts(MemberID_A, MemberID_B, verified) VALUES($1, $2, $3)`
-                    let values = [request.decoded.memberid, request.body.memberId, 1]
+                // if (result.rowCount == 1) {
+                //     let insert = `INSERT INTO Contacts(MemberID_A, MemberID_B, verified) VALUES($1, $2, $3)`
+                //     let values = [request.decoded.memberid, request.body.memberId, 1]
 
-                    console.log("here 2nd : "+request.decoded.toString('utf8'))
+                //     console.log("here 2nd : "+request.decoded.toString('utf8'))
 
-                    pool.query(insert, values)
-                        .then(result => {
-                            if (result.rowCount == 1) {
+                //     pool.query(insert, values)
+                //         .then(result => {
+                //             if (result.rowCount == 1) {
 
-                                let query = "SELECT token FROM Push_Token WHERE memberid = $1"
-                                let value = [request.body.memberId]
+                                let query = 'SELECT * FROM Push_Token WHERE MemberId = $1'
+                                let value = [request.memID]
 
                                 pool.query(query, value)
                                     .then(result => {
 
-                                        let query = "SELECT FirstName, LastName FROM Members WHERE memberID = $1"
-                                        let value = [request.decoded.memberid]
+                                        let query = 'SELECT FirstName, LastName, Email FROM Members WHERE memberID = $1'
+                                        let value = [95]
+                                        // request.decoded.memberid
+                                        console.log("result in the token query : ")
+                                        console.log(result.rowCount)
                                         let tkn = result.rows[0].token
                     
                                         pool.query(query, value)
                                             .then(result => {
 
                                                 let msg = "New contact request from " + result.rows[0].firstname + " " + result.rows[0].lastname
+                                                            + ":" + result.rows[0].email
+                                                            
                                                 console.log(tkn + " and new mssg to send " + msg)
                                                  
                                                 //send notification to pushy
                                                 contact_functions.sendContactRequestToIndividual(
                                                     tkn, 
                                                     msg,
-                                                    request.body.memberId)
+                                                    request.memID)
 
                                                 response.send({
                                                     success: true,
@@ -252,32 +281,32 @@ router.use(require("body-parser").json())
                                             })
                                       
                                     })
-                                    .catch(error => {
+            .catch(error => {
                                         console.log("Erro while selecting from push token: " + error)
                                         response.status(400).send({
                                             message: "SQL Error on select token",
-                                            error: err
+                                            error: error
                                         })
                                     })
 
-                            } else {
-                                response.status(400).send({
-                                    "message": "unknown error"
-                                })
-                            }
+                            // } else {
+                            //     response.status(400).send({
+                            //         "message": "unknown error"
+                            //     })
+                            // }
 
-                        }).catch(err => {
-                            console.log("Error inside the else ")
-                            response.status(400).send({
-                                message: "SQL Error on insert",
-                                error: err
-                            })
-                        })
-                } else {
-                    response.status(400).send({
-                        "message": "unknown error"
-                    })
-                }
+                        // }).catch(err => {
+                        //     console.log("Error inside the else ")
+                        //     response.status(400).send({
+                        //         message: "SQL Error on insert",
+                        //         error: err
+                        //     })
+                        // })
+                // } else {
+                //     response.status(400).send({
+                //         "message": "unknown error"
+                //     })
+                // }
 
             }).catch(err => {
                 console.log("This is the only posisble else block")
