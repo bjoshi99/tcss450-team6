@@ -214,7 +214,7 @@ router.use(require("body-parser").json())
         })
 }, (request, response) => {
     if (request.body.verified == 1) {
-        // console.log("Inside the next: " + request.memID)
+        console.log("Inside the next with verified 1: " + request.memID)
         let insert = `UPDATE Contacts SET verified=1 where MemberID_A=$1 AND MemberID_B=$2`
         let values = [request.decoded.memberid, request.memID]
         pool.query(insert, values)
