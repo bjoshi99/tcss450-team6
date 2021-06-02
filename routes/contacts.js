@@ -219,9 +219,26 @@ router.use(require("body-parser").json())
         let values = [request.decoded.memberid, request.memID]
         pool.query(insert, values)
             .then(result => {
-                response.send({
-                    success: true
-                })
+
+                let query = `INSERT INTO Contacts(MemberID_B, MemberID_A, verified) VALUES($1, $2, $3)`
+                let values = [request.decoded.memberid, request.memID, request.body.verified]
+
+                pool.query(query, values)
+                    .then(result => {
+
+                        response.send({
+                            success: true
+                        })
+                    })
+                    .catch(err => {
+
+                        console.log(err);
+                        response.status(400).send({
+                            message: "SQL Error on insert",
+                            error: err
+                        })
+                    })
+
             }).catch(err => {
                 console.log(err);
                 response.status(400).send({
