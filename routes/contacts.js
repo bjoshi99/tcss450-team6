@@ -269,7 +269,7 @@ router.use(require("body-parser").json())
                                     .then(result => {
 
                                         let query = 'SELECT FirstName, LastName, Email FROM Members WHERE memberID = $1'
-                                        let value = [95]
+                                        let value = [request.decoded.memberid]
                                         // request.decoded.memberid
                                         console.log("result in the token query : ")
                                         console.log(result.rowCount)
