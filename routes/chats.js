@@ -232,7 +232,7 @@ console.log(request.decoded)
 
 
 /**
- * @api {put} /chats/:chatId? Request add a user to a chat
+ * @api {put} /chats/:chatId? Request add a user-itself to a chat
  * @apiName PutChats
  * @apiGroup Chats
  * 
