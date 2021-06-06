@@ -111,6 +111,19 @@ router.use(require("body-parser").json())
     } else {
         next()
     }
+},(request, response, next) => {
+    let query = 'DELETE FROM Contacts WHERE MemberID_A=$2 and MemberID_B=$1'
+    let values = [request.decoded.memberid, request.params.memberId]
+
+    pool.query(query, values)
+        .then(result => {
+                next()
+        }).catch(error => {
+            response.status(400).send({
+                message: "SQL Error",
+                error: error
+            })
+        })
 }, (request, response) => {
     // Delete contact
     let query = 'DELETE FROM Contacts WHERE MemberID_A=$1 and MemberID_B=$2'
