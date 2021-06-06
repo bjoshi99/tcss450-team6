@@ -725,8 +725,141 @@ define({ "api": [
   },
   {
     "type": "put",
-    "url": "/chats/:chatId?",
+    "url": "/chats/user/:chatId?",
     "title": "Request add a user to a chat",
+    "name": "PutChats",
+    "group": "Chats",
+    "description": "<p>Adds the user associated with the required JWT.</p>",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "authorization",
+            "description": "<p>Valid JSON Web Token JWT</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "chatId",
+            "description": "<p>the chat to add the user to</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "memberId",
+            "description": "<p>the memberId of the user to add</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "boolean",
+            "optional": false,
+            "field": "success",
+            "description": "<p>true when the name is inserted</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "404: Chat Not Found": [
+          {
+            "group": "404: Chat Not Found",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;chatID not found&quot;</p>"
+          }
+        ],
+        "404: Member Not Found": [
+          {
+            "group": "404: Member Not Found",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;MemberID not found&quot;</p>"
+          }
+        ],
+        "404: Email Not Found": [
+          {
+            "group": "404: Email Not Found",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;email not found&quot;</p>"
+          }
+        ],
+        "400: Invalid Parameter": [
+          {
+            "group": "400: Invalid Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;Malformed parameter. chatId and memberId must be numbers&quot;</p>"
+          }
+        ],
+        "400: Duplicate Email": [
+          {
+            "group": "400: Duplicate Email",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;user already joined&quot;</p>"
+          }
+        ],
+        "400: Missing Parameters": [
+          {
+            "group": "400: Missing Parameters",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;Missing required information&quot;</p>"
+          }
+        ],
+        "400: SQL Error": [
+          {
+            "group": "400: SQL Error",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>the reported SQL error details</p>"
+          }
+        ],
+        "400: JSON Error": [
+          {
+            "group": "400: JSON Error",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>&quot;malformed JSON in parameters&quot;</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/chats.js",
+    "groupTitle": "Chats"
+  },
+  {
+    "type": "put",
+    "url": "/chats/:chatId?",
+    "title": "Request add a user-itself to a chat",
     "name": "PutChats",
     "group": "Chats",
     "description": "<p>Adds the user associated with the required JWT.</p>",
@@ -796,132 +929,6 @@ define({ "api": [
             "optional": false,
             "field": "message",
             "description": "<p>&quot;Malformed parameter. chatId must be a number&quot;</p>"
-          }
-        ],
-        "400: Duplicate Email": [
-          {
-            "group": "400: Duplicate Email",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>&quot;user already joined&quot;</p>"
-          }
-        ],
-        "400: Missing Parameters": [
-          {
-            "group": "400: Missing Parameters",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>&quot;Missing required information&quot;</p>"
-          }
-        ],
-        "400: SQL Error": [
-          {
-            "group": "400: SQL Error",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>the reported SQL error details</p>"
-          }
-        ],
-        "400: JSON Error": [
-          {
-            "group": "400: JSON Error",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>&quot;malformed JSON in parameters&quot;</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "routes/chats.js",
-    "groupTitle": "Chats"
-  },
-  {
-    "type": "put",
-    "url": "/chats/user/:chatId?",
-    "title": "Request add a user to a chat",
-    "name": "PutChats",
-    "group": "Chats",
-    "description": "<p>Adds the user associated with the required JWT.</p>",
-    "header": {
-      "fields": {
-        "Header": [
-          {
-            "group": "Header",
-            "type": "String",
-            "optional": false,
-            "field": "authorization",
-            "description": "<p>Valid JSON Web Token JWT</p>"
-          }
-        ]
-      }
-    },
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": false,
-            "field": "chatId",
-            "description": "<p>the chat to add the user to</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "boolean",
-            "optional": false,
-            "field": "success",
-            "description": "<p>true when the name is inserted</p>"
-          }
-        ]
-      }
-    },
-    "error": {
-      "fields": {
-        "404: Chat Not Found": [
-          {
-            "group": "404: Chat Not Found",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>&quot;chatID not found&quot;</p>"
-          }
-        ],
-        "404: Member Not Found": [
-          {
-            "group": "404: Member Not Found",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>&quot;MemberID not found&quot;</p>"
-          }
-        ],
-        "404: Email Not Found": [
-          {
-            "group": "404: Email Not Found",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>&quot;email not found&quot;</p>"
-          }
-        ],
-        "400: Invalid Parameter": [
-          {
-            "group": "400: Invalid Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "message",
-            "description": "<p>&quot;Malformed parameter. chatId and memberId must be numbers&quot;</p>"
           }
         ],
         "400: Duplicate Email": [
@@ -1263,19 +1270,22 @@ define({ "api": [
         ]
       }
     },
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": false,
-            "field": "memberId",
-            "description": "<p>of the contact being added</p>"
-          }
-        ]
+    "body": [
+      {
+        "group": "Body",
+        "type": "String",
+        "optional": false,
+        "field": "email",
+        "description": "<p>of the contact being added</p>"
+      },
+      {
+        "group": "Body",
+        "type": "Number",
+        "optional": false,
+        "field": "verified",
+        "description": ""
       }
-    },
+    ],
     "success": {
       "fields": {
         "Success 201": [
