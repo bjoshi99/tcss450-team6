@@ -268,38 +268,48 @@ router.use(require("body-parser").json())
                                 pool.query(query, value)
                                     .then(result => {
 
-                                        let query = 'SELECT FirstName, LastName, Email FROM Members WHERE memberID = $1'
-                                        let value = [request.decoded.memberid]
-                                        // request.decoded.memberid
-                                        console.log("result in the token query : ")
-                                        console.log(result.rowCount)
-                                        let tkn = result.rows[0].token
-                    
-                                        pool.query(query, value)
-                                            .then(result => {
+                                        if(result.rows == 0){
+                                            
+                                            response.send({
+                                                success: true,
+                                                "message":"contacts added successfully"
+                                            })
+                                        }
+                                        else{
 
-                                                let msg = "New contact request from " + result.rows[0].firstname + " " + result.rows[0].lastname
-                                                            + ":" + result.rows[0].email
-                                                            
-                                                console.log(tkn + " and new mssg to send " + msg)
-                                                 
-                                                //send notification to pushy
-                                                contact_functions.sendContactRequestToIndividual(
-                                                    tkn, 
-                                                    msg,
-                                                    request.memID)
+                                            let query = 'SELECT FirstName, LastName, Email FROM Members WHERE memberID = $1'
+                                            let value = [request.decoded.memberid]
+                                            // request.decoded.memberid
+                                            console.log("result in the token query : ")
+                                            console.log(result.rowCount)
+                                            let tkn = result.rows[0].token
+                        
+                                            pool.query(query, value)
+                                                .then(result => {
 
-                                                response.send({
-                                                    success: true,
-                                                    "message":"contacts added successfully"
+                                                    let msg = "New contact request from " + result.rows[0].firstname + " " + result.rows[0].lastname
+                                                                + ":" + result.rows[0].email
+                                                                
+                                                    console.log(tkn + " and new mssg to send " + msg)
+                                                    
+                                                    //send notification to pushy
+                                                    contact_functions.sendContactRequestToIndividual(
+                                                        tkn, 
+                                                        msg,
+                                                        request.memID)
+
+                                                    response.send({
+                                                        success: true,
+                                                        "message":"contacts added successfully"
+                                                    })
                                                 })
-                                            })
-                                            .catch(error => {
+                                                .catch(error => {
 
-                                            })
+                                                })
+                                        }
                                       
                                     })
-            .catch(error => {
+                                .catch(error => {
                                         console.log("Erro while selecting from push token: " + error)
                                         response.status(400).send({
                                             message: "SQL Error on select token",
